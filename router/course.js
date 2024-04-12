@@ -34,17 +34,6 @@ router.get("/users/:id", async (req, res) => {
     console.log(err.message);
   }
 });
-//pagination
-// router.get("/users/page/:id", async (req, res) => {
-//   const pageNo = req.params.id;
-//   const perpage = 10;
-//   const geter = await CourseModel.find()
-//     .limit(10)
-//     .skip(pageNo * perpage);
-//   res.send(geter);
-// });
-
-// to request & response to the api and database
 
 router.post("/users", async (req, res) => {
   // handling the err for the joi
