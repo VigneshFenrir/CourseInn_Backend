@@ -6,9 +6,21 @@ const { CourseModel } = require("../models/courses");
 const Joi = require("joi");
 
 // get the data to datebase
+const itemPerPage = 8;
 router.get("/users", async (req, res) => {
-  const geter = await CourseModel.find();
-  res.send(geter);
+  const pageNo = req.query.page;
+  const skip = (pageNo - 1) * itemPerPage;
+  console.log(pageNo, " -- ", skip);
+  const item = await CourseModel.find().limit(itemPerPage).skip(skip);
+
+  res.send(item);
+});
+
+// count
+router.get("/users/total", async (req, res) => {
+  const item = await CourseModel.find().count();
+  console.log(item);
+  res.json(item);
 });
 
 // find and get data
@@ -16,12 +28,21 @@ router.get("/users/:id", async (req, res) => {
   const id = req.params.id;
 
   try {
-    const user = await CourseModel.findById({ _id: id });
+    const user = await CourseModel.findById(id).select("-_id -__v");
     res.send(user);
   } catch (err) {
     console.log(err.message);
   }
 });
+//pagination
+// router.get("/users/page/:id", async (req, res) => {
+//   const pageNo = req.params.id;
+//   const perpage = 10;
+//   const geter = await CourseModel.find()
+//     .limit(10)
+//     .skip(pageNo * perpage);
+//   res.send(geter);
+// });
 
 // to request & response to the api and database
 
@@ -33,7 +54,7 @@ router.post("/users", async (req, res) => {
   const coursess = new CourseModel(req.body);
   courses = await coursess.save();
   console.log(courses);
-  res.send(courses);
+  res.send("created successfully");
 });
 
 //   update the data to database

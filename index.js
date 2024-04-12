@@ -26,7 +26,7 @@ app.use("/trainer", trainer);
 app.use("/batch", batch);
 app.use("/student", student);
 
-const port = 3000;
+const port = 5000;
 app.listen(port, () => {
   console.log(`server listening the port ${port}`);
 });
