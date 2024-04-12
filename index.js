@@ -21,12 +21,12 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/academy", Category);
-app.use("/course", Course);
-app.use("/trainer", trainer);
-app.use("/batch", batch);
-app.use("/student", student);
+app.use("/courses", Course);
+app.use("/trainers", trainer);
+app.use("/batchs", batch);
+app.use("/students", student);
 
-const port = 3000;
+const port = 5000;
 app.listen(port, () => {
   console.log(`server listening the port ${port}`);
 });

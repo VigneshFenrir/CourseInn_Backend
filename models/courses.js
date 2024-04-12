@@ -1,6 +1,11 @@
 const mongoose = require("mongoose");
 
 const courseschema = new mongoose.Schema({
+  date: {
+    type: Date,
+    default: Date.now(),
+    require: true,
+  },
   coursename: {
     type: String,
     required: true,

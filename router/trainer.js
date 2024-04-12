@@ -8,14 +8,14 @@ const Joi = require("joi");
 
 // get the data to datebase
 
-router.get("/users", async (req, res) => {
-  const geter = await trainers.find();
+router.get("/", async (req, res) => {
+  const geter = await TrainerModel.find();
   res.send(geter);
 });
 
 // find and get data
 
-router.get("/users/:id", async (req, res) => {
+router.get("/:id", async (req, res) => {
   const id = req.params.id;
 
   try {
@@ -32,7 +32,7 @@ router.get("/users/:id", async (req, res) => {
 
 // to request & response to the api and database
 
-router.post("/users", async (req, res) => {
+router.post("/", async (req, res) => {
   // handling the err for the joi
 
   const { error } = validateTrainer(req.body);
@@ -48,6 +48,7 @@ router.post("/users", async (req, res) => {
     tname: req.body.tname,
     email: req.body.email,
     mobile: req.body.mobile,
+    date: req.body.date,
     course: {
       _id: course._id,
       coursename: course.coursename,
@@ -55,12 +56,13 @@ router.post("/users", async (req, res) => {
     },
   });
   const training = await trainer.save();
-  res.send(training);
+  console.log(training);
+  res.send("sucessfully");
 });
 
 //   update the data to database
 
-router.put("/users/:id", async (req, res) => {
+router.put("/:id", async (req, res) => {
   // handling the err for the joi
 
   const { error } = validateTrainer(req.body);
@@ -77,6 +79,7 @@ router.put("/users/:id", async (req, res) => {
       tname: req.body.tname,
       email: req.body.email,
       mobile: req.body.mobile,
+      date: req.body.date,
       course: {
         _id: course._id,
         coursename: course.coursename,
@@ -93,7 +96,7 @@ router.put("/users/:id", async (req, res) => {
 });
 // delete the data
 
-router.delete("/users/:id", async (req, res) => {
+router.delete("/:id", async (req, res) => {
   const trainer = await TrainerModel.findByIdAndDelete(req.params.id);
   // In case dosen't match to it will be handle the error
 
@@ -109,6 +112,7 @@ function validateTrainer(trainer) {
     email: Joi.string().required(),
     mobile: Joi.string().required(),
     courseid: Joi.string().required(),
+    // duration: Joi.string().required(),
   });
   result = Schema.validate(trainer);
   return result;

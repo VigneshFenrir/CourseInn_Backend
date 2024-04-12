@@ -2,6 +2,11 @@ const mongoose = require("mongoose");
 const { courseschema } = require("./courses");
 
 const trainerschema = new mongoose.Schema({
+  date: {
+    type: Date,
+    default: Date.now(),
+    require: true,
+  },
   tname: {
     type: String,
     required: true,
