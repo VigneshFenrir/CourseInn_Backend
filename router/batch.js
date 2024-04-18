@@ -9,8 +9,17 @@ const itemPerPage = 10;
 router.get("/", async (req, res) => {
   const pageNo = req.query.page;
   const skip = (pageNo - 1) * itemPerPage;
-  const geter = await BatchModel.find().limit(itemPerPage).skip(skip);
-  res.send(geter);
+  const search = req.query.search;
+  if (search) {
+    const geter = await BatchModel.find({ batchname: `${search}` })
+      .limit(itemPerPage)
+      .skip(skip);
+    res.send(geter);
+  } else {
+    const geter = await BatchModel.find().limit(itemPerPage).skip(skip);
+    res.send(geter);
+  }
+  // console.log(search);
 });
 
 router.get("/total", async (req, res) => {
