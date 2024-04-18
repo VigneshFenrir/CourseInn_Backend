@@ -6,7 +6,7 @@ const { BatchModel } = require("../models/batches");
 
 // get the data to datebase
 
-const itemPerPage = 8;
+const itemPerPage = 10;
 router.get("/", async (req, res) => {
   const pageNo = req.query.page;
   const skip = (pageNo - 1) * itemPerPage;

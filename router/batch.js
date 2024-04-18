@@ -3,11 +3,20 @@ router = express.Router();
 const Joi = require("joi");
 const { BatchModel } = require("../models/batches");
 const { TrainerModel } = require("../models/trainers");
-
+const itemPerPage = 10;
 // get the data to datebase
+
 router.get("/", async (req, res) => {
-  const geter = await BatchModel.find();
+  const pageNo = req.query.page;
+  const skip = (pageNo - 1) * itemPerPage;
+  const geter = await BatchModel.find().limit(itemPerPage).skip(skip);
   res.send(geter);
+});
+
+router.get("/total", async (req, res) => {
+  const item = await BatchModel.find().count();
+  console.log(item);
+  res.json(item);
 });
 
 // find and get data
