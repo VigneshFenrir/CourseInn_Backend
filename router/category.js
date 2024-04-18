@@ -33,11 +33,11 @@ router.post("/signinusers", async (req, res) => {
   }
 
   try {
-    const poster = new UserModel(req.body);
     const { password, confirm_password } = req.body;
     if (password !== confirm_password) {
       return res.status(400).json("Passwords Doesn't Match");
     }
+    const poster = new UserModel(req.body);
     const result = await poster.save();
     console.log(result);
     res.send("created successfully");
