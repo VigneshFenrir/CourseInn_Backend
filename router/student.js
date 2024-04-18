@@ -6,15 +6,26 @@ const { BatchModel } = require("../models/batches");
 
 // get the data to datebase
 
-router.get("/users", async (req, res) => {
-  const geter = await StudentModel.find();
-  res.send(geter);
+const itemPerPage = 8;
+router.get("/", async (req, res) => {
+  const pageNo = req.query.page;
+  const skip = (pageNo - 1) * itemPerPage;
+  // console.log(pageNo, " -- ", skip);
+  const item = await StudentModel.find().limit(itemPerPage).skip(skip);
+
+  res.send(item);
+});
+
+router.get("/total", async (req, res) => {
+  const item = await StudentModel.find().count();
+  console.log(item);
+  res.json(item);
 });
 
 // find and get data
 
-router.get("/users/:id", async (req, res) => {
-  const id = req.prams.id;
+router.get("/:id", async (req, res) => {
+  const { id } = req.prams.id;
   try {
     const student = await StudentModel.findById({ _id: id });
     if (!student)
@@ -29,7 +40,7 @@ router.get("/users/:id", async (req, res) => {
 
 // to request & response to the api and database
 
-router.post("/users", async (req, res) => {
+router.post("/", async (req, res) => {
   // handling the err for the joi
 
   const { error } = validatestudent(req.body);
@@ -49,6 +60,7 @@ router.post("/users", async (req, res) => {
     student_mobile: req.body.student_mobile,
     student_address: req.body.student_address,
     student_education: req.body.student_education,
+    date: req.body.date,
     batches: {
       _id: batches._id,
       batchname: batches.batchname,
@@ -58,12 +70,13 @@ router.post("/users", async (req, res) => {
     },
   });
   const student = await students.save();
-  res.send(student);
+  console.log(student);
+  res.send("Created Successfully");
 });
 
 //   update the data to database
 
-router.put("/users/:id", async (req, res) => {
+router.put("/:id", async (req, res) => {
   // handling the err for the joi
 
   const { error } = validatebatch(req.body);
@@ -83,6 +96,7 @@ router.put("/users/:id", async (req, res) => {
       student_mobile: req.body.student_mobile,
       student_address: req.body.student_address,
       student_education: req.body.student_education,
+      date: req.body.date,
       batches: {
         _id: batches._id,
         batchname: batches.batchname,
@@ -97,18 +111,18 @@ router.put("/users/:id", async (req, res) => {
     // In case dosen't match to it will be handle the error
 
     return res.status(404).send("The student with the given ID was not found.");
-  res.send(students);
+  res.send("Updated Successfully");
 });
 
 // delete the data
 
-router.delete("/users/:id", async (req, res) => {
+router.delete("/:id", async (req, res) => {
   const students = await StudentModel.findByIdAndDelete(req.params.id);
   // In case dosen't match to it will be handle the error
 
   if (!students)
     return res.status(404).send("The student with the given ID was not found.");
-  res.send(students);
+  res.send(" Deleted successfully!");
 });
 // joi and validation function
 

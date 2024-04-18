@@ -10,7 +10,7 @@ const itemPerPage = 8;
 router.get("/", async (req, res) => {
   const pageNo = req.query.page;
   const skip = (pageNo - 1) * itemPerPage;
-  console.log(pageNo, " -- ", skip);
+  // console.log(pageNo, " -- ", skip);
   const item = await CourseModel.find().limit(itemPerPage).skip(skip);
 
   res.send(item);
@@ -46,7 +46,7 @@ router.post("/", async (req, res) => {
 
   courses = await coursess.save();
   console.log(courses);
-  res.send("created sucessfully");
+  res.send("Created SucCessfully");
 });
 
 //   update the data to database

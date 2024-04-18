@@ -7,10 +7,17 @@ const { CourseModel } = require("../models/courses");
 const Joi = require("joi");
 
 // get the data to datebase
-
+const itemperpage = 10;
 router.get("/", async (req, res) => {
-  const geter = await TrainerModel.find();
-  res.send(geter);
+  const pageno = req.query.page;
+  const skip = (pageno - 1) * itemperpage;
+  const geter = await TrainerModel.find().limit(itemperpage).skip(skip);
+  res.json(geter);
+});
+
+router.get("/total", async (req, res) => {
+  const geter = await TrainerModel.find().count();
+  res.json(geter);
 });
 
 // find and get data
@@ -19,7 +26,9 @@ router.get("/:id", async (req, res) => {
   const id = req.params.id;
 
   try {
-    const user = await TrainerModel.findById({ _id: id });
+    const user = await TrainerModel.findById(id).select(
+      "-_id -__v -date -course"
+    );
     if (!user)
       return res
         .status(404)
@@ -57,7 +66,7 @@ router.post("/", async (req, res) => {
   });
   const training = await trainer.save();
   console.log(training);
-  res.send("sucessfully");
+  res.send("Created Successfully");
 });
 
 //   update the data to database
@@ -92,7 +101,7 @@ router.put("/:id", async (req, res) => {
 
   if (!trainer)
     return res.status(404).send("The trainer with the given ID was not found.");
-  res.send(trainer);
+  res.send("Updated Successfully");
 });
 // delete the data
 
@@ -102,7 +111,7 @@ router.delete("/:id", async (req, res) => {
 
   if (!trainer)
     return res.status(404).send("The trainer with the given ID was not found.");
-  res.send(trainer);
+  res.send(" Deleted successfully!");
 });
 // joi and validation function
 

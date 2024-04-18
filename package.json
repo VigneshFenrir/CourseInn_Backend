@@ -5,6 +5,8 @@
     "express": "^4.19.2",
     "joi": "^17.12.2",
     "ll": "^1.2.0",
-    "mongoose": "^8.2.3"
+    "mongoose": "^8.2.3",
+    "nodemailer": "^6.9.13",
+    "otp-generator": "^4.0.1"
   }
 }

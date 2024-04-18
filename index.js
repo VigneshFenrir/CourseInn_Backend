@@ -23,7 +23,7 @@ app.use(express.json());
 app.use("/academy", Category);
 app.use("/courses", Course);
 app.use("/trainers", trainer);
-app.use("/batchs", batch);
+app.use("/batches", batch);
 app.use("/students", student);
 
 const port = 5000;

@@ -5,17 +5,19 @@ const { BatchModel } = require("../models/batches");
 const { TrainerModel } = require("../models/trainers");
 
 // get the data to datebase
-router.get("/users", async (req, res) => {
+router.get("/", async (req, res) => {
   const geter = await BatchModel.find();
   res.send(geter);
 });
 
 // find and get data
-router.get("/users/:id", async (req, res) => {
+router.get("/:id", async (req, res) => {
   const id = req.params.id;
 
   try {
-    const user = await BatchModel.findById({ _id: id });
+    const user = await BatchModel.findById(id).select(
+      "-_id -__v -date -trainer "
+    );
     if (!user)
       return res
         .status(404)
@@ -27,7 +29,7 @@ router.get("/users/:id", async (req, res) => {
 });
 
 // to request & response to the api and database
-router.post("/users", async (req, res) => {
+router.post("/", async (req, res) => {
   // handling the err for the joi
 
   const { error } = validatebatch(req.body);
@@ -42,20 +44,23 @@ router.post("/users", async (req, res) => {
     batchname: req.body.batchname,
     start_time: req.body.start_time,
     end_time: req.body.end_time,
+    date: req.body.date,
     trainer: {
       _id: trainer._id,
       tname: trainer.tname,
       email: trainer.email,
       mobile: trainer.mobile,
+
       course: trainer.course,
     },
   });
   const batches = await batched.save();
-  res.send(batches);
+  console.log(batches);
+  res.send("Created Successfully");
 });
 
 //   update the data to database
-router.put("/users/:id", async (req, res) => {
+router.put("/:id", async (req, res) => {
   // handling the err for the joi
 
   const { error } = validatebatch(req.body);
@@ -70,6 +75,7 @@ router.put("/users/:id", async (req, res) => {
       batchname: req.body.batchname,
       start_time: req.body.start_time,
       end_time: req.body.end_time,
+      date: req.body.date,
       trainer: {
         _id: trainer._id,
         tname: trainer.tname,
@@ -84,18 +90,18 @@ router.put("/users/:id", async (req, res) => {
   // In case dosen't match to it will be handle the error
   if (!batches)
     return res.status(404).send("The batch with the given ID was not found.");
-  res.send(batches);
+  res.send("Updated Successfully");
 });
 
 //   Delete the data to database
 
-router.delete("/users/:id", async (req, res) => {
+router.delete("/:id", async (req, res) => {
   const batches = await BatchModel.findByIdAndDelete(req.params.id);
 
   // In case dosen't match to it will be handle the error
   if (!batches)
     return res.status(404).send("The batch with the given ID was not found.");
-  res.send(batches);
+  res.send(" Deleted successfully!");
 });
 // joi and validation function
 function validatebatch(batched) {

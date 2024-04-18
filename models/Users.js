@@ -13,7 +13,7 @@ const userschema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  repaeat_password: {
+  confrim_password: {
     type: String,
   },
   mobile: {
@@ -23,6 +23,9 @@ const userschema = new mongoose.Schema({
   role: {
     type: String,
     required: true,
+  },
+  otp: {
+    type: String,
   },
 });
 

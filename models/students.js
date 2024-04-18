@@ -2,6 +2,11 @@ const mongoose = require("mongoose");
 const { batchschema } = require("../models/batches");
 
 const studentschema = new mongoose.Schema({
+  date: {
+    type: Date,
+    default: Date.now(),
+    require: true,
+  },
   student_name: {
     type: String,
     required: true,

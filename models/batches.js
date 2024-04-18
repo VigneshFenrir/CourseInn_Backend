@@ -2,6 +2,11 @@ const mongoose = require("mongoose");
 const { trainerschema } = require("./trainers");
 
 const batchschema = new mongoose.Schema({
+  date: {
+    type: Date,
+    default: Date.now(),
+    require: true,
+  },
   batchname: {
     type: String,
     required: true,
