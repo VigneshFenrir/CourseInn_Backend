@@ -6,6 +6,7 @@ const Course = require("./router/course");
 const trainer = require("./router/trainer");
 const batch = require("./router/batch");
 const student = require("./router/student");
+const opp = require("./router/operation");
 
 mongoose
   .connect("mongodb://localhost:27017/loginusers")
@@ -25,6 +26,7 @@ app.use("/courses", Course);
 app.use("/trainers", trainer);
 app.use("/batches", batch);
 app.use("/students", student);
+app.use("/operations", opp);
 
 const port = 5000;
 app.listen(port, () => {

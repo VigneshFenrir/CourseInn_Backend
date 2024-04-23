@@ -25,14 +25,14 @@ router.get("/total", async (req, res) => {
 // find and get data
 
 router.get("/:id", async (req, res) => {
-  const { id } = req.prams.id;
+  const id = req.params.id;
   try {
-    const student = await StudentModel.findById({ _id: id });
+    const student = await StudentModel.findById(id);
     if (!student)
       return res
         .status(404)
         .send("The student with the given ID was not found.");
-    res.send(user);
+    res.send(student);
   } catch (err) {
     console.log(err.message);
   }
