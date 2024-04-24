@@ -11,7 +11,9 @@ router.get("/", async (req, res) => {
   const skip = (pageNo - 1) * itemPerPage;
   const search = req.query.search;
   if (search) {
-    const geter = await BatchModel.find({ batchname: `${search}` })
+    console.log(search);
+    const regex = new RegExp(`.*${search}.*`);
+    const geter = await BatchModel.find({ batchname: regex })
       .limit(itemPerPage)
       .skip(skip);
     res.send(geter);

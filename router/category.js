@@ -21,9 +21,34 @@ const transporter = nodemailer.createTransport(smtpConfig);
 // Define email options
 
 // to get the data
-router.get("/signinusers", async (req, res) => {
-  const category = await UserModel.find();
-  res.send(category);
+const itemperpage = 10;
+router.get("/", async (req, res) => {
+  const pageno = req.query.page;
+  const skip = (pageno - 1) * itemperpage;
+  const geter = await UserModel.find().limit(itemperpage).skip(skip);
+  res.json(geter);
+});
+
+router.get("/total", async (req, res) => {
+  const geter = await UserModel.find().count();
+  res.json(geter);
+});
+
+// find and get data
+
+router.get("/:id", async (req, res) => {
+  const id = req.params.id;
+
+  try {
+    const user = await UserModel.findById(id).select("-_id -__v -date ");
+    if (!user)
+      return res
+        .status(404)
+        .send("The course with the given ID was not found.");
+    res.send(user);
+  } catch (err) {
+    console.log(err.message);
+  }
 });
 // to request & response to the api and database /  signin
 
@@ -49,23 +74,27 @@ router.post("/signinusers", async (req, res) => {
 
 // to request & response to the api and database /  login
 
-router.post("/loginusers", async (req, res) => {
+router.post("/loginuser", async (req, res) => {
   // handling the err for the joi
 
-  const { error } = validatelogin(req.body);
+  try {
+    const { error } = validatelogin(req.body);
 
-  if (error) {
-    return res.status(400).send(error.details[0].message);
-  }
-  const { email, password } = req.body;
-  const Logining = await UserModel.findOne({ email, password });
-  console.log(Logining);
-  // In case dosen't match to it will be handle the error
-  if (!Logining) {
-    return res.status(400).send("Invalid Email Id & password");
-  }
+    if (error) {
+      return res.status(400).send(error.details[0].message);
+    }
+    const { email, password } = req.body;
+    const Logining = await UserModel.findOne({ email, password });
+    console.log(Logining);
+    // In case dosen't match to it will be handle the error
+    if (!Logining) {
+      return res.status(400).send("Invalid Email Id & password");
+    }
 
-  res.send("Logining Successfully");
+    res.send("Logining Successfully");
+  } catch (err) {
+    console.log(err);
+  }
 });
 
 // to request & response to the api and database /  forget password find the email and generate otp
@@ -129,7 +158,7 @@ router.post("/verifyotp", async (req, res) => {
 router.put("/updatepassword/:id", async (req, res) => {
   const { password, confirm_password } = req.body;
   if (password !== confirm_password) {
-    return res.status(400).json("Passwords do not match");
+    return res.status(400).json("Passwords Doesn't match");
   }
 
   try {
@@ -145,6 +174,62 @@ router.put("/updatepassword/:id", async (req, res) => {
     res.send("Password Updated Successfully");
   } catch (err) {
     console.log(err);
+  }
+});
+
+router.put("/:id", async (req, res) => {
+  // handling the err for the joi
+  const { error } = validatelogining(req.body);
+  if (error) return res.status(400).send(error.details[0].message);
+
+  const id = req.params.id;
+
+  try {
+    const { password, confirm_password } = req.body;
+    if (password !== confirm_password) {
+      return res.status(400).json("Passwords Doesn't Match");
+    }
+    const userss = await UserModel.findByIdAndUpdate(
+      id,
+      {
+        name: req.body.name,
+        email: req.body.email,
+        mobile: req.body.mobile,
+        password: req.body.password,
+        confirm_password: req.body.confirm_password,
+        role: req.body.role,
+      },
+
+      { new: true }
+    );
+    console.log(userss);
+
+    // In case dosen't match to it will be handle the error
+    if (!userss)
+      return res
+        .status(404)
+        .send("The course with the given ID was not found.");
+    res.send("Updated Successfully");
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+// delete the data
+
+router.delete("/:id", async (req, res) => {
+  const id = req.params.id;
+
+  try {
+    const userss = await UserModel.findByIdAndDelete(id);
+    console.log(userss);
+    if (!userss)
+      return res
+        .status(404)
+        .send("The course with the given ID was not found.");
+    res.send(" Deleted successfully!");
+  } catch (err) {
+    console.log(err.message);
   }
 });
 
