@@ -1,10 +1,11 @@
 const express = require("express");
-const nodemailer = require("nodemailer");
-const generateOTP = require("../router/otp");
 router = express.Router();
 
 const UserModel = require("../models/Users");
 const Joi = require("joi");
+const nodemailer = require("nodemailer");
+const generateOTP = require("../router/otp");
+
 const smtpConfig = {
   host: "smtp.hostinger.com", // Replace with your actual SMTP server hostname
   port: 465, // Common port for secure SMTP (SSL/TLS)
