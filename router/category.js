@@ -177,7 +177,7 @@ router.put("/updatepassword/:id", async (req, res) => {
   }
 });
 
-router.put("/:id", async (req, res) => {
+router.put("/signinusers/:id", async (req, res) => {
   // handling the err for the joi
   const { error } = validatelogining(req.body);
   if (error) return res.status(400).send(error.details[0].message);
