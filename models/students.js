@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const { batchschema } = require("../models/batches");
+const { courseschema } = require("./courses");
 
 const studentschema = new mongoose.Schema({
   date: {
@@ -29,6 +30,10 @@ const studentschema = new mongoose.Schema({
   },
   batches: {
     type: batchschema,
+    required: true,
+  },
+  course: {
+    type: courseschema,
     required: true,
   },
 });

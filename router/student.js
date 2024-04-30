@@ -3,17 +3,49 @@ router = express.Router();
 const Joi = require("joi");
 const { StudentModel } = require("../models/students");
 const { BatchModel } = require("../models/batches");
+const { CourseModel } = require("../models/courses");
 
 // get the data to datebase
 
 const itemPerPage = 10;
 router.get("/", async (req, res) => {
-  const pageNo = req.query.page;
-  const skip = (pageNo - 1) * itemPerPage;
-  // console.log(pageNo, " -- ", skip);
-  const item = await StudentModel.find().limit(itemPerPage).skip(skip);
+  try {
+    const batchid = req.query.batch;
+    const courseid = req.query.course;
 
-  res.send(item);
+    const pageNo = req.query.page;
+    const skip = (pageNo - 1) * itemPerPage;
+
+    if (batchid && courseid) {
+      const batches = await BatchModel.findById(batchid);
+      // console.log("ss", batches);
+      const Courses = await CourseModel.findById(courseid);
+      // console.log(Courses);
+
+      const batch = new RegExp(`.*${batches.batchname}.*`);
+      console.log(batch, "batch");
+      const course = new RegExp(`.*${Courses.coursename}.*`);
+      console.log(course, "course");
+      const geter = await StudentModel.find({
+        $and: [
+          { "batches.batchname": batch },
+          { "course.coursename": course },
+          // Add more conditions as needed
+        ],
+      })
+        .limit(itemPerPage)
+        .skip(skip);
+
+      res.send(geter);
+      console.log(geter);
+    } else {
+      const geter = await StudentModel.find().limit(itemPerPage).skip(skip);
+      res.send(geter);
+    }
+    // console.log(search);
+  } catch (err) {
+    console.log(err.message);
+  }
 });
 
 router.get("/total", async (req, res) => {
@@ -54,6 +86,9 @@ router.post("/", async (req, res) => {
 
   // constructor function to create new
 
+  const courses = await CourseModel.findById(req.body.courseid);
+  if (!courses) return res.status(400).send("invalid Course");
+
   const students = new StudentModel({
     student_name: req.body.student_name,
     student_email: req.body.student_email,
@@ -61,6 +96,11 @@ router.post("/", async (req, res) => {
     student_address: req.body.student_address,
     student_education: req.body.student_education,
     date: req.body.date,
+    course: {
+      _id: courses._id,
+      coursename: courses.coursename,
+      duration: courses.duration,
+    },
     batches: {
       _id: batches._id,
       batchname: batches.batchname,
@@ -82,11 +122,14 @@ router.put("/:id", async (req, res) => {
   const { error } = validatebatch(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
-  const batches = await TrainerModel.findById(req.body.batchid);
+  const batches = await BatchModel.findById(req.body.batchid);
 
   // In case dosen't match to it will be handle the error
 
   if (!batches) return res.status(400).send("invalid trainer");
+
+  const courses = await CourseModel.findById(req.body.courseid);
+  if (!courses) return res.status(400).send("invalid Course");
 
   const students = await StudentModel.findByIdAndUpdate(
     req.params.id,
@@ -103,6 +146,11 @@ router.put("/:id", async (req, res) => {
         start_time: batches.start_time,
         end_time: batches.end_time,
         trainer: batches.trainer,
+      },
+      courses: {
+        _id: courses._id,
+        coursename: courses.coursename,
+        duration: courses.duration,
       },
     },
     { new: true }
@@ -134,6 +182,7 @@ function validatestudent(students) {
     student_address: Joi.string().required(),
     student_education: Joi.string().required(),
     batchid: Joi.string().required(),
+    courseid: Joi.string().required(),
   });
   result = Schema.validate(students);
 

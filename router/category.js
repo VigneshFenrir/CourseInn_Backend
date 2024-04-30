@@ -5,6 +5,7 @@ router = express.Router();
 
 const UserModel = require("../models/Users");
 const Joi = require("joi");
+const jwt = require("jsonwebtoken");
 const smtpConfig = {
   host: "smtp.hostinger.com", // Replace with your actual SMTP server hostname
   port: 465, // Common port for secure SMTP (SSL/TLS)
@@ -87,10 +88,12 @@ router.post("/loginuser", async (req, res) => {
     console.log(Logining);
     // In case dosen't match to it will be handle the error
     if (!Logining) {
-      return res.status(400).send("Invalid Email Id & password");
+      return res.status(400).send("Invalid Email Id or password");
     }
-
-    res.send("Logining Successfully");
+    //  generate token
+    const token = jwt.sign({ _id: Logining.id }, "this secretkey123");
+    console.log(token);
+    res.send(token);
   } catch (err) {
     console.log(err);
   }
