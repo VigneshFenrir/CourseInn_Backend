@@ -1,8 +1,10 @@
 const express = require("express");
 router = express.Router();
 const Joi = require("joi");
+const authM = require("../middeware/authM");
 const { StudentModel } = require("../models/students");
 const { BatchModel } = require("../models/batches");
+const { CourseModel } = require("../models/courses");
 
 // get the data to datebase
 
@@ -40,17 +42,20 @@ router.get("/:id", async (req, res) => {
 
 // to request & response to the api and database
 
-router.post("/", async (req, res) => {
+router.post("/", authM, async (req, res) => {
   // handling the err for the joi
 
   const { error } = validatestudent(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
   const batches = await BatchModel.findById(req.body.batchid);
+  const course = await CourseModel.findById(req.body.courseid);
 
   // In case dosen't match to it will be handle the error
 
   if (!batches) return res.status(400).send("invalid batch");
+
+  if (!course) return res.status(400).send("invalid course");
 
   // constructor function to create new
 
@@ -68,6 +73,10 @@ router.post("/", async (req, res) => {
       end_time: batches.end_time,
       trainer: batches.trainer,
     },
+    course: {
+      coursename: course.coursename,
+      duration: course.duration,
+    },
   });
   const student = await students.save();
   console.log(student);
@@ -76,17 +85,20 @@ router.post("/", async (req, res) => {
 
 //   update the data to database
 
-router.put("/:id", async (req, res) => {
+router.put("/:id", authM, async (req, res) => {
   // handling the err for the joi
 
   const { error } = validatebatch(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
-  const batches = await TrainerModel.findById(req.body.batchid);
+  const batches = await BatchModel.findById(req.body.batchid);
+  const course = await CourseModel.findById(req.body.courseid);
 
   // In case dosen't match to it will be handle the error
 
-  if (!batches) return res.status(400).send("invalid trainer");
+  if (!batches) return res.status(400).send("invalid batch");
+
+  if (!course) return res.status(400).send("invalid course");
 
   const students = await StudentModel.findByIdAndUpdate(
     req.params.id,
@@ -104,6 +116,10 @@ router.put("/:id", async (req, res) => {
         end_time: batches.end_time,
         trainer: batches.trainer,
       },
+      course: {
+        coursename: course.coursename,
+        duration: course.duration,
+      },
     },
     { new: true }
   );
@@ -116,7 +132,7 @@ router.put("/:id", async (req, res) => {
 
 // delete the data
 
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", authM, async (req, res) => {
   const students = await StudentModel.findByIdAndDelete(req.params.id);
   // In case dosen't match to it will be handle the error
 
@@ -134,6 +150,7 @@ function validatestudent(students) {
     student_address: Joi.string().required(),
     student_education: Joi.string().required(),
     batchid: Joi.string().required(),
+    courseid: Joi.string().required(),
   });
   result = Schema.validate(students);
 

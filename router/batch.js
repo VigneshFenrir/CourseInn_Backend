@@ -1,6 +1,7 @@
 const express = require("express");
 router = express.Router();
 const Joi = require("joi");
+const authM = require("../middeware/authM");
 const { BatchModel } = require("../models/batches");
 const { TrainerModel } = require("../models/trainers");
 const itemPerPage = 10;
@@ -49,7 +50,7 @@ router.get("/:id", async (req, res) => {
 });
 
 // to request & response to the api and database
-router.post("/", async (req, res) => {
+router.post("/", authM, async (req, res) => {
   // handling the err for the joi
 
   const { error } = validatebatch(req.body);
@@ -80,7 +81,7 @@ router.post("/", async (req, res) => {
 });
 
 //   update the data to database
-router.put("/:id", async (req, res) => {
+router.put("/:id", authM, async (req, res) => {
   // handling the err for the joi
 
   const { error } = validatebatch(req.body);
@@ -115,7 +116,7 @@ router.put("/:id", async (req, res) => {
 
 //   Delete the data to database
 
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", authM, async (req, res) => {
   const batches = await BatchModel.findByIdAndDelete(req.params.id);
 
   // In case dosen't match to it will be handle the error

@@ -1,7 +1,7 @@
 const express = require("express");
 
 router = express.Router();
-
+const authM = require("../middeware/authM");
 const { CourseModel } = require("../models/courses");
 const Joi = require("joi");
 
@@ -37,7 +37,7 @@ router.get("/:id", async (req, res) => {
 
 // to request & response to the api and database
 
-router.post("/", async (req, res) => {
+router.post("/", authM, async (req, res) => {
   // handling the err for the joi
   const { error } = validateCourse(req.body);
   if (error) return res.status(400).send(error.details[0].message);
@@ -51,7 +51,7 @@ router.post("/", async (req, res) => {
 
 //   update the data to database
 
-router.put("/:id", async (req, res) => {
+router.put("/:id", authM, async (req, res) => {
   // handling the err for the joi
   const { error } = validateCourse(req.body);
   if (error) return res.status(400).send(error.details[0].message);
@@ -77,7 +77,7 @@ router.put("/:id", async (req, res) => {
 
 // delete the data
 
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", authM, async (req, res) => {
   const id = req.params.id;
 
   try {
