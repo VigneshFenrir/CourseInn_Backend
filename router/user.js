@@ -1,12 +1,11 @@
 const express = require("express");
+const nodemailer = require("nodemailer");
+const generateOTP = require("../router/otp");
 router = express.Router();
 const bcrypt = require("bcrypt");
+
 const UserModel = require("../models/Users");
 const Joi = require("joi");
-const nodemailer = require("nodemailer");
-const generateOTP = require("./otp");
-const _ = require("lodash");
-
 const smtpConfig = {
   host: "smtp.hostinger.com", // Replace with your actual SMTP server hostname
   port: 465, // Common port for secure SMTP (SSL/TLS)
@@ -54,37 +53,33 @@ router.get("/:id", async (req, res) => {
 // to request & response to the api and database /  signin
 
 router.post("/signinusers", async (req, res) => {
+  const { error } = validatelogining(req.body);
+  if (error) {
+    return res.status(400).send(error.details[0].message);
+  }
+
   try {
-    const { error } = validatelogining(req.body);
-    if (error) {
-      return res.status(400).send(error.details[0].message);
-    }
-    let user = await UserModel.findOne({ email: req.body.email });
-
-    if (user) return res.status(400).send("user already exits ");
-
     const { password, confirm_password } = req.body;
     if (password !== confirm_password) {
       return res.status(400).json("Passwords Doesn't Match");
     }
     const User = new UserModel({
-      name: req.body.name,
-      email: req.body.email,
-      mobile: req.body.mobile,
-      password: req.body.password,
-      confirm_password: req.body.confirm_password,
-      role: req.body.role,
+      name: "",
+      email: "",
+      mobile: "",
+      password: "",
+      confirm_password: "",
+      role: "",
     });
     const salt = await bcrypt.genSalt(15);
     const hashed = await bcrypt.hash(req.body.password, salt);
-
     User.password = hashed;
 
-    const result = await User.save();
+    const result = await poster.save();
     console.log(result);
     const token = User.generateToken();
-    res.header("x-auth-token", token).send("created successfully");
-    // res.send(_.pick(User, ["password"]));
+    res.header("x-auth-token", token).send("registered Successfully");
+    res.send("created successfully");
   } catch (error) {
     console.log(error);
   }
@@ -170,7 +165,7 @@ router.put("/updatepassword/:id", async (req, res) => {
   }
 });
 
-router.put("/signinusers/:id", async (req, res) => {
+router.put("/:id", async (req, res) => {
   // handling the err for the joi
   const { error } = validatelogining(req.body);
   if (error) return res.status(400).send(error.details[0].message);
