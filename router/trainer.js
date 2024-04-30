@@ -1,5 +1,4 @@
 const express = require("express");
-
 router = express.Router();
 const authM = require("../middeware/authM");
 const { TrainerModel } = require("../models/trainers");

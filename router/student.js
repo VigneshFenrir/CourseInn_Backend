@@ -13,16 +13,43 @@ router.get("/", async (req, res) => {
   try {
     const batchid = req.query.batch;
     const courseid = req.query.course;
-
     const pageNo = req.query.page;
     const skip = (pageNo - 1) * itemPerPage;
+    if (req.query.batch || req.query.course) {
+      console.log("hiiiiiiiii");
+      console.log(batchid, "hiii");
 
-    if (batchid && courseid) {
+      let batch = "";
+      let course = "";
+
+      if (req.query.batch) {
+        const batches = await BatchModel.findById(batchid);
+        console.log("orrrrrrrrr", batches);
+        batch = new RegExp(`.*${batches.batchname}.*`);
+        console.log(batch, "batch");
+      }
+
+      if (req.query.course) {
+        const Courses = await CourseModel.findById(courseid);
+        course = new RegExp(`.*${Courses.coursename}.*`);
+        console.log(course, "course");
+      }
+
+      const geter = await StudentModel.find({
+        $or: [{ "batches.batchname": batch }, { "course.coursename": course }],
+      })
+        .limit(itemPerPage)
+        .skip(skip);
+
+      res.send(geter);
+      console.log(geter);
+    }
+
+    if (req.query.batch && req.query.course) {
+      // console.log(batchid);
       const batches = await BatchModel.findById(batchid);
-      // console.log("ss", batches);
+      console.log("ss", batches);
       const Courses = await CourseModel.findById(courseid);
-      // console.log(Courses);
-
       const batch = new RegExp(`.*${batches.batchname}.*`);
       console.log(batch, "batch");
       const course = new RegExp(`.*${Courses.coursename}.*`);
@@ -37,7 +64,7 @@ router.get("/", async (req, res) => {
         .limit(itemPerPage)
         .skip(skip);
 
-      res.send(geter);
+      res.send("hii daa");
       console.log(geter);
     } else {
       const geter = await StudentModel.find().limit(itemPerPage).skip(skip);
@@ -80,12 +107,12 @@ router.post("/", authM, async (req, res) => {
   if (error) return res.status(400).send(error.details[0].message);
 
   const batches = await BatchModel.findById(req.body.batchid);
-  const courses = await CourseModel.findById(req.body.courseid);
+  const course = await CourseModel.findById(req.body.courseid);
 
   // In case dosen't match to it will be handle the error
 
   if (!batches) return res.status(400).send("invalid batch");
-  if (!courses) return res.status(400).send("invalid course");
+  if (!course) return res.status(400).send("invalid course");
 
   // constructor function to create new
 
@@ -97,9 +124,9 @@ router.post("/", authM, async (req, res) => {
     student_education: req.body.student_education,
     date: req.body.date,
     course: {
-      _id: courses._id,
-      coursename: courses.coursename,
-      duration: courses.duration,
+      _id: course._id,
+      coursename: course.coursename,
+      duration: course.duration,
     },
     batches: {
       _id: batches._id,
@@ -107,6 +134,10 @@ router.post("/", authM, async (req, res) => {
       start_time: batches.start_time,
       end_time: batches.end_time,
       trainer: batches.trainer,
+    },
+    course: {
+      coursename: course.coursename,
+      duration: course.duration,
     },
   });
   const student = await students.save();
@@ -119,14 +150,16 @@ router.post("/", authM, async (req, res) => {
 router.put("/:id", authM, async (req, res) => {
   // handling the err for the joi
 
-  const { error } = validatebatch(req.body);
+  const { error } = validatestudent(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
-  const batches = await TrainerModel.findById(req.body.batchid);
+  const batches = await BatchModel.findById(req.body.batchid);
+  const course = await CourseModel.findById(req.body.courseid);
 
   // In case dosen't match to it will be handle the error
 
-  if (!batches) return res.status(400).send("invalid trainer");
+  if (!batches) return res.status(400).send("invalid batch");
+  if (!course) return res.status(400).send("invalid course");
 
   const students = await StudentModel.findByIdAndUpdate(
     req.params.id,
@@ -145,9 +178,8 @@ router.put("/:id", authM, async (req, res) => {
         trainer: batches.trainer,
       },
       course: {
-        _id: courses._id,
-        coursename: courses.coursename,
-        duration: courses.duration,
+        coursename: course.coursename,
+        duration: course.duration,
       },
     },
     { new: true }

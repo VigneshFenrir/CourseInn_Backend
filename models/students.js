@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 const { batchschema } = require("../models/batches");
-const { courseschema } = require("./courses");
 const { courseschema } = require("../models/courses");
 
 const studentschema = new mongoose.Schema({

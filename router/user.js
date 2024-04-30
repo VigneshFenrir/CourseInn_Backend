@@ -64,18 +64,18 @@ router.post("/signinusers", async (req, res) => {
       return res.status(400).json("Passwords Doesn't Match");
     }
     const User = new UserModel({
-      name: "",
-      email: "",
-      mobile: "",
-      password: "",
-      confirm_password: "",
-      role: "",
+      name: req.body.name,
+      email: req.body.email,
+      mobile: req.body.mobile,
+      password: req.body.password,
+      confirm_password: req.body.confirm_password,
+      role: req.body.role,
     });
     const salt = await bcrypt.genSalt(15);
     const hashed = await bcrypt.hash(req.body.password, salt);
     User.password = hashed;
 
-    const result = await poster.save();
+    const result = await User.save();
     console.log(result);
     const token = User.generateToken();
     res.header("x-auth-token", token).send("registered Successfully");
