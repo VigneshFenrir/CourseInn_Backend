@@ -6,6 +6,7 @@ const bcrypt = require("bcrypt");
 
 const UserModel = require("../models/Users");
 const Joi = require("joi");
+
 const smtpConfig = {
   host: "smtp.hostinger.com", // Replace with your actual SMTP server hostname
   port: 465, // Common port for secure SMTP (SSL/TLS)
@@ -77,8 +78,9 @@ router.post("/signinusers", async (req, res) => {
 
     const result = await User.save();
     console.log(result);
+
     const token = User.generateToken();
-    res.header("x-auth-token", token).send("registered Successfully");
+    res.setHeader("x-auth-token", token).send("registered Successfully");
     res.send("created successfully");
   } catch (error) {
     console.log(error);

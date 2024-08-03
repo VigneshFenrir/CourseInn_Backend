@@ -1,5 +1,4 @@
 {
-  "description": "",
   "dependencies": {
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
@@ -12,5 +11,15 @@
     "mongoose": "^8.2.3",
     "nodemailer": "^6.9.13",
     "otp-generator": "^4.0.1"
-  }
+  },
+  "name": "academy-api",
+  "version": "1.0.0",
+  "main": "index.js",
+  "devDependencies": {},
+  "scripts": {
+    "start":"nodemon index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": ""
 }

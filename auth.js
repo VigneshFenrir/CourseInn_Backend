@@ -1,56 +1,55 @@
 const express = require("express");
-router = express.Router();
+const router = express.Router();
 const bcrypt = require("bcrypt");
 const UserModel = require("./models/Users");
 const Joi = require("joi");
+const config = require("config");
+const jwt = require("jsonwebtoken");
 
-// console.log(config.get("jwtpvtkey"));
-
-// to request & response to the api and database /  login
-
+// POST /login - User login endpoint
 router.post("/", async (req, res) => {
-  // handling the err for the joi
-
   try {
-    const { error } = validatelogin(req.body);
+    // Validate request body
+    const { error } = validateLogin(req.body);
+    if (error) return res.status(400).send(error.details[0].message);
 
-    if (error) {
-      return res.status(400).send(error.details[0].message);
-    }
     const { email, password } = req.body;
-    const User = await UserModel.findOne({ email });
 
-    console.log(User);
-    // In case dosen't match to it will be handle the error
+    // Find user by email
+    const user = await UserModel.findOne({ email });
+    if (!user) return res.status(400).send("Invalid email or password");
+    console.log(user, "Usersss");
 
-    if (!User) {
-      return res.status(400).send("Invalid email or password");
-    }
+    // Compare password
+    const isValidPassword = await bcrypt.compare(password, user.password);
+    if (!isValidPassword) return res.status(400).send("Invalid password");
 
-    //bcrypt.compare(password, User.password);
+    // Generate token
+    const token = jwt.sign(
+      { id: user._id, name: user.name, role: user.role },
+      config.get("jwtpvtkey"),
+      {
+        expiresIn: "1h",
+      }
+    );
 
-    const valid_passwd = await bcrypt.compare(password, User.password);
-    console.log(valid_passwd);
+    res.setHeader("X-Auth-Token", token);
 
-    if (!valid_passwd) return res.status(400).send("Invalid  password");
-
-    // const token = jwt.sign({ _id: User.id }, config.get("jwtpvtkey"));
-
-    const token = User.generateToken();
-
-    res.header("x-auth-token", token).send("Logining Successfully");
+    res.status(200).send("Login successful");
+    console.log("tokenssset", token);
   } catch (err) {
-    console.log(err);
+    console.error(err);
+    res.status(500).send("Internal server error");
   }
 });
 
-function validatelogin(Logining) {
-  const Schema = Joi.object({
-    email: Joi.string().required(),
-    password: Joi.string().required(),
+// Validate login request body
+function validateLogin(data) {
+  const schema = Joi.object({
+    email: Joi.string().email().required(), // Added email format validation
+    password: Joi.string().min(6).required(), // Minimum length for password
   });
-  const result = Schema.validate(Logining);
-  return result;
+  return schema.validate(data);
 }
 
 module.exports = router;

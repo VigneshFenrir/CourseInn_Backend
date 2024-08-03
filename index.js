@@ -27,7 +27,13 @@ mongoose
   });
 
 const app = express();
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    credentials: true,
+    exposedHeaders: ["X-Auth-Token"],
+  })
+);
 app.use(express.json());
 
 app.use("/academy", User);
